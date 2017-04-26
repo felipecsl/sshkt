@@ -1,0 +1,26 @@
+ext.versions = [
+    kotlinVersion : '1.1.2'
+]
+ext {
+  isSnapshot = version.endsWith("-SNAPSHOT")
+
+  isCi = "true" == System.getenv('CI')
+
+  dep = [
+      nexusPlugin  : 'com.bmuschko:gradle-nexus-plugin:2.3.1',
+      junit        : "junit:junit:4.12",
+      mockito      : 'org.mockito:mockito-core:2.7.13',
+      kotlinStdLib : "org.jetbrains.kotlin:kotlin-stdlib:$versions.kotlinVersion",
+      kotlinJre8   : "org.jetbrains.kotlin:kotlin-stdlib-jre8:$versions.kotlinVersion",
+      kotlinPlugin : "org.jetbrains.kotlin:kotlin-gradle-plugin:$versions.kotlinVersion",
+      truth        : 'com.google.truth:truth:0.30',
+      sshj         : 'com.hierynomus:sshj:0.21.1',
+  ]
+
+  androidConfig = [
+      compileSdkVersion: 25,
+      buildToolsVersion: '25.0.2',
+      minSdkVersion    : 9,
+      targetSdkVersion : 25
+  ]
+}

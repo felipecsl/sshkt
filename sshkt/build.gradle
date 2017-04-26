@@ -1,0 +1,13 @@
+apply plugin: 'kotlin'
+
+sourceCompatibility = JavaVersion.VERSION_1_7
+targetCompatibility = JavaVersion.VERSION_1_7
+
+dependencies {
+  compile dep.sshj
+  compile dep.kotlinStdLib
+  compile dep.kotlinJre8
+  testCompile dep.junit
+  testCompile dep.truth
+  testCompile dep.mockito
+}
