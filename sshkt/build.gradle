@@ -7,7 +7,10 @@ dependencies {
   compile dep.sshj
   compile dep.kotlinStdLib
   compile dep.kotlinJre8
+  compile dep.slf4j
+  compile dep.bouncyCastle
   testCompile dep.junit
   testCompile dep.truth
   testCompile dep.mockito
+  testCompile dep.sshd
 }
