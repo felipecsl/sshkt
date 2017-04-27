@@ -2,7 +2,7 @@ package sshkt
 
 import net.schmizz.sshj.connection.channel.direct.Session
 
-class Host(private val session: Session) {
+class Host(val hostname: String, private val session: Session) {
   fun capture(vararg args: String) {
 
   }

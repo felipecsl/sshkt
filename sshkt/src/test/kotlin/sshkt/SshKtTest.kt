@@ -14,8 +14,9 @@ class SshKtTest {
     given(sshClient.startSession()).willReturn(session)
     val sshKt = SshKt(sshClient)
     sshKt.on(listOf("google.com", "yahoo.com")) {
-      it.execute("whoami")
+      it.execute("whoami ${it.hostname}")
     }
-    verify(session).exec("whoami")
+    verify(session).exec("whoami google.com")
+    verify(session).exec("whoami yahoo.com")
   }
 }
