@@ -2,7 +2,7 @@ package sshkt
 
 import net.schmizz.sshj.SSHClient
 
-class SimpleHostParser(hostString: String) : HostParser(hostString) {
+internal class SimpleHostParser(hostString: String) : HostParser(hostString) {
   override fun suitable() =
       !hostString.contains(Regex("[:@]"))
 

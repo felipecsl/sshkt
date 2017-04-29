@@ -1,23 +1,20 @@
 package sshkt
 
+import net.schmizz.sshj.Config
+import net.schmizz.sshj.DefaultConfig
 import net.schmizz.sshj.SSHClient
 import net.schmizz.sshj.common.LoggerFactory
 
 class SshKt(
-    private val sshClient: SSHClient = SSHClient(),
+    private val sshKtConfig: SshKtConfig = SshKtConfig.DEFAULT,
+    private val config: Config = DefaultConfig(),
+    private val sshClientFactory: (Config) -> SSHClient = { c -> SSHClient(c) },
     private val loggerFactory: LoggerFactory = LoggerFactory.DEFAULT) {
   fun on(servers: List<String>, block: (Host) -> Unit) {
-    servers.forEach { host ->
-      val parser = findSuitableParser(host)
-      sshClient.connect(parser.hostname(), parser.port())
-      // TODO: Figure out authentication
-//      sshClient.authPublickey("root")
-      sshClient.authPassword(parser.username(), parser.username())
-      sshClient.use {
-        it.startSession().use { session ->
-          block.invoke(Host(host, loggerFactory, session))
-        }
-      }
+    servers.forEach {
+      val parser = findSuitableParser(it)
+      val host = Host(sshKtConfig, parser, loggerFactory, config, sshClientFactory)
+      block.invoke(host)
     }
   }
 

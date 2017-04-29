@@ -1,31 +1,35 @@
 package sshkt
 
+import net.schmizz.sshj.Config
+import net.schmizz.sshj.SSHClient
 import net.schmizz.sshj.common.LoggerFactory
-import net.schmizz.sshj.connection.channel.direct.Session
-import java.util.concurrent.TimeUnit
 
 class Host(
-    val hostname: String,
-    loggerFactory: LoggerFactory,
-    private val session: Session) {
-  private val logger = loggerFactory.getLogger(javaClass)
+    private val sshKtConfig: SshKtConfig,
+    private val parser: HostParser,
+    private val loggerFactory: LoggerFactory,
+    private val config: Config,
+    private val sshClientFactory: (Config) -> SSHClient) : Transport {
 
-  fun capture(vararg args: String) {
-
-  }
-
-  fun test(vararg args: String) {
-
-  }
-
-  fun execute(vararg args: String): Int {
-    return session.exec(args.joinToString()).let { command ->
-      command.inputStream.bufferedReader().use {
-        val output = it.readText()
-        logger.info("[exec]: $output")
-        command.join(5, TimeUnit.SECONDS)
-        command.exitStatus
-      }
+  override fun test(vararg args: String): Boolean {
+    return newSshJRunner().use {
+      it.test(*args)
     }
   }
+
+  override fun execute(vararg args: String): Int {
+    return newSshJRunner().use {
+      it.execute(*args)
+    }
+  }
+
+  override fun capture(vararg args: String): String {
+    return newSshJRunner().use {
+      it.capture(*args)
+    }
+  }
+
+  private fun newSshJRunner() =
+      SshJRunner(sshKtConfig, parser, loggerFactory, config, sshClientFactory)
 }
+
