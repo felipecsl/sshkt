@@ -3,44 +3,61 @@ package sshkt
 import com.google.common.truth.Truth.assertThat
 import net.schmizz.sshj.Config
 import net.schmizz.sshj.SSHClient
-import org.junit.Rule
 import org.junit.Test
-import org.junit.rules.TemporaryFolder
-import sshkt.util.SshFixture
-import java.io.File
 
 class IntegrationTest {
-  @Rule @JvmField val fixture = SshFixture()
-  @Rule @JvmField val temp = TemporaryFolder()
-
-  @Test fun integrationTest() {
-    val server = fixture.server
-    val file = File(temp.root, "testdir")
-    val host = listOf("kurt@127.0.0.1:${server.port}")
-    val sshKtConfig = SshKtConfig(keysOnly = false, password = "kurt")
-    SshKt(sshKtConfig, sshClientFactory = newClient()).on(host) {
-      it.execute("mkdir ${file.path}")
-    }
-    assertThat(file.exists()).isTrue()
-    assertThat(file.isDirectory).isTrue()
-    File(file, "foo.txt").writeText("hello world")
-    SshKt(sshKtConfig, sshClientFactory = newClient()).on(host) {
-      assertThat(it.capture("ls ${file.path}")).isEqualTo("foo.txt")
-      assertThat(it.capture("cat ${file.path}/foo.txt")).isEqualTo("hello world")
+  private val host = "vagrant@33.33.33.2"
+  private val clientFactory: (Config) -> SSHClient = { c ->
+    SSHClient(c).also {
+      it.loadKnownHosts()
     }
   }
 
-  @Test fun realServer() {
-    val clientFactory: (Config) -> SSHClient = { c ->
-      SSHClient(c).also {
-        it.loadKnownHosts()
+  @Test fun passwordAuth() {
+    SshKt(SshKtConfig(false, "abacabb"), sshClientFactory = clientFactory) {
+      on("supercow@33.33.33.2") {
+        assertThat(capture("whoami")).isEqualTo("supercow")
       }
     }
-    val sshKt = SshKt(sshClientFactory = clientFactory)
-    sshKt.on(listOf("root@107.170.28.142:22")) {
-      assertThat(it.capture("whoami")).isEqualTo("root")
+  }
+
+  @Test fun publicKeyAuth() {
+    SshKt(sshClientFactory = clientFactory) {
+      on(host) {
+        assertThat(capture("whoami")).isEqualTo("vagrant")
+      }
     }
   }
 
-  private fun newClient() = fixture::setupClient
+  @Test fun testOn() {
+    val time = System.currentTimeMillis().toString()
+    val dir = "/tmp/foo"
+    SshKt(sshClientFactory = clientFactory) {
+      on(host) {
+        execute("mkdir $dir")
+        assertThat(capture("ls -l $dir")).isEqualTo("total 0")
+        execute("echo '$time' > $dir/bar.txt")
+        assertThat(capture("ls $dir")).isEqualTo("bar.txt")
+        assertThat(capture("cat $dir/bar.txt")).isEqualTo(time)
+        execute("rm -rf $dir")
+      }
+    }
+  }
+
+  @Test fun testWithin() {
+    val time = System.currentTimeMillis().toString()
+    val dir = "/tmp/foo"
+    SshKt(sshClientFactory = clientFactory) {
+      on(host) {
+        execute("mkdir /tmp/foo")
+        within(dir) {
+          assertThat(capture("ls -l")).isEqualTo("total 0")
+          execute("echo '$time' > bar.txt")
+          assertThat(capture("ls")).isEqualTo("bar.txt")
+          assertThat(capture("cat bar.txt")).isEqualTo(time)
+        }
+        execute("rm -rf $dir")
+      }
+    }
+  }
 }

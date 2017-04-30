@@ -12,5 +12,4 @@ dependencies {
   testCompile dep.junit
   testCompile dep.truth
   testCompile dep.mockito
-  testCompile dep.sshd
 }

@@ -17,7 +17,6 @@ ext {
       sshj         : 'com.hierynomus:sshj:0.21.1',
       slf4j        : 'org.slf4j:slf4j-simple:1.7.25',
       bouncyCastle : 'org.bouncycastle:bcprov-jdk15on:1.56',
-      sshd         : "org.apache.sshd:sshd-core:1.2.0"
   ]
 
   androidConfig = [
