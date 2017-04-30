@@ -18,17 +18,17 @@ class SshKt(
     }
   }
 
-  private fun findSuitableParser(hostString: String): HostParser {
+  private fun findSuitableParser(hostString: String): HostSpec {
     return HOST_PARSERS
         .map { it.constructors[0] }
-        .map { it.newInstance(hostString) as HostParser }
+        .map { it.newInstance(hostString) as HostSpec }
         .firstOrNull { it.suitable() }
         ?: throw UnparseableHostStringException("Cannot parse host string $hostString")
   }
 
   companion object {
-    val HOST_PARSERS: List<Class<out HostParser>> = listOf(
-        SimpleHostParser::class.java,
-        HostWithUsernameAndPortParser::class.java)
+    internal val HOST_PARSERS: List<Class<out HostSpec>> = listOf(
+        SimpleHostSpec::class.java,
+        HostWithUsernameAndPortSpec::class.java)
   }
 }

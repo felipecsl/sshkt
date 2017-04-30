@@ -9,7 +9,7 @@ import java.util.concurrent.TimeUnit
 
 internal class SshJRunner(
     sshKtConfig: SshKtConfig,
-    parser: HostParser,
+    spec: HostSpec,
     loggerFactory: LoggerFactory,
     sshJConfig: Config,
     sshClientFactory: (Config) -> SSHClient) : Transport, Closeable {
@@ -18,11 +18,11 @@ internal class SshJRunner(
   private val session: Session
 
   init {
-    sshClient.connect(parser.hostname(), parser.port())
+    sshClient.connect(spec.hostname(), spec.port())
     if (sshKtConfig.keysOnly) {
-      sshClient.authPublickey(parser.username())
+      sshClient.authPublickey(spec.username())
     } else {
-      sshClient.authPassword(parser.username(), sshKtConfig.password)
+      sshClient.authPassword(spec.username(), sshKtConfig.password)
     }
     session = sshClient.startSession()
   }
