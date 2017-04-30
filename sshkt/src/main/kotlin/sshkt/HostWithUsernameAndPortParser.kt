@@ -1,6 +1,6 @@
 package sshkt
 
-class HostWithUsernameAndPortParser(hostString: String) : HostParser(hostString) {
+internal class HostWithUsernameAndPortParser(hostString: String) : HostParser(hostString) {
   override fun username() =
       hostString.split(Regex("[:@]"))[0]
 
