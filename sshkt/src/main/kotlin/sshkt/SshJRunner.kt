@@ -9,6 +9,7 @@ import java.util.concurrent.TimeUnit
 
 internal class SshJRunner(
     private val inPath: String,
+    private val asUser: String? = null,
     sshKtConfig: SshKtConfig,
     hostSpec: HostSpec,
     loggerFactory: LoggerFactory,
@@ -55,11 +56,17 @@ internal class SshJRunner(
   }
 
   private fun newCommand(vararg args: String): Session.Command {
-    val cmd = if (inPath.any()) {
-      "cd $inPath && ${args.joinToString()}"
-    } else {
-      args.joinToString()
+    val commandString = args.joinToString()
+    val cmdBuilder = StringBuilder()
+    if (inPath.any()) {
+      cmdBuilder.append("cd $inPath && ")
     }
+    if (asUser != null) {
+      cmdBuilder.append("sudo -u $asUser -- sh -c '$commandString'")
+    } else {
+      cmdBuilder.append(commandString)
+    }
+    val cmd = cmdBuilder.toString()
     logger.info("[exec]: $cmd")
     return session.exec(cmd)
   }

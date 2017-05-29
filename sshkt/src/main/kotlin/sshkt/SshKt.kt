@@ -18,8 +18,8 @@ class SshKt(
   fun on(vararg servers: String, block: Host.() -> Unit) {
     servers.forEach {
       val hostSpec = HostSpecSelection.parse(it)
-      val host = Host(emptyList(), sshKtConfig, hostSpec, loggerFactory, config, sshClientFactory)
-      host.block()
+      Host(emptyList(), null, sshKtConfig, hostSpec, loggerFactory, config, sshClientFactory)
+          .block()
     }
   }
 }

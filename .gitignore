@@ -21,3 +21,4 @@ target/
 *.cert
 classes/
 local.properties
+.vagrant

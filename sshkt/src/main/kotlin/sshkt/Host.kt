@@ -6,6 +6,7 @@ import net.schmizz.sshj.common.LoggerFactory
 
 class Host internal constructor(
     private val pwd: List<String> = linkedListOf(),
+    private val user: String? = null,
     private val sshKtConfig: SshKtConfig,
     private val hostSpec: HostSpec,
     private val loggerFactory: LoggerFactory,
@@ -29,19 +30,18 @@ class Host internal constructor(
       }
 
   fun within(path: String, block: Host.() -> Unit) =
-      block(newHost(path))
+      block(newHost(pwd = linkedListOf(pwd.plus(path))))
 
-  private fun newHost(newDir: String) =
-      Host(linkedListOf(pwd.plus(newDir)),
-          sshKtConfig,
-          hostSpec,
-          loggerFactory,
-          config,
-          sshClientFactory)
+  fun asUser(user: String, block: Host.() -> Unit) =
+      block(newHost(user = user))
+
+  private fun newHost(pwd: List<String> = this.pwd, user: String? = this.user) =
+      Host(pwd, user, sshKtConfig, hostSpec, loggerFactory, config, sshClientFactory)
 
   private fun newCommand() =
       SshJRunner(
           inPath = pwd.joinToString("/"),
+          asUser = user,
           sshKtConfig = sshKtConfig,
           hostSpec = hostSpec,
           loggerFactory = loggerFactory,

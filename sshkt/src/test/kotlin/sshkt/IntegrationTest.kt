@@ -60,4 +60,20 @@ class IntegrationTest {
       }
     }
   }
+
+  @Test fun testAs() {
+    SshKt(sshClientFactory = clientFactory) {
+      val dir = "/tmp/foo"
+      on(host) {
+        asUser("supercow") {
+          execute("mkdir $dir")
+          within(dir) {
+            assertThat(capture("pwd")).isEqualTo("/tmp/foo")
+            assertThat(capture("whoami")).isEqualTo("supercow")
+          }
+          execute("rm -rf $dir")
+        }
+      }
+    }
+  }
 }
